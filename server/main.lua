@@ -13,8 +13,8 @@ end, 'god')
 
 RegisterNetEvent("ps-objectspawner:server:CreateNewObject", function(model, coords, objecttype, options, objectname)
     local source = source
-    local hasperms = QBCore.Functions.HasPermission(source, 'god')
-    if hasperms then
+    --local hasperms = QBCore.Functions.HasPermission(source, 'god')
+    --if hasperms then
         if model and coords then
             local data = MySQL.query.await("INSERT INTO objects (model, coords, type, options, name) VALUES (?, ?, ?, ?, ?)", { model, json.encode(coords), objecttype, json.encode(options), objectname })
             ServerObjects[data.insertId] = {id = data.insertId, model = model, coords = coords, type = objecttype, name = objectname, options = options}
@@ -22,9 +22,9 @@ RegisterNetEvent("ps-objectspawner:server:CreateNewObject", function(model, coor
         else 
             print("[PS-OBJECTSPAWNER]: Object or coords was invalid")
         end
-    else
-        print("[PS-OBJECTSPAWNER]: You don't have permissions for this")
-    end
+    -- else
+    --     print("[PS-OBJECTSPAWNER]: You don't have permissions for this")
+    -- end
 end)
 
 CreateThread(function()
@@ -47,16 +47,16 @@ end)
 
 RegisterNetEvent("ps-objectspawner:server:DeleteObject", function(objectid)
     local source = source
-    local hasperms = QBCore.Functions.HasPermission(source, 'god')
-    if hasperms then
+    --local hasperms = QBCore.Functions.HasPermission(source, 'god')
+    --if hasperms then
         if objectid > 0 then
             local data = MySQL.query.await('DELETE FROM objects WHERE id = ?', {objectid})
             ServerObjects[objectid] = nil
             TriggerClientEvent("ps-objectspawner:client:receiveObjectDelete", -1, objectid)
         end
-    else
-        print("[PS-OBJECTSPAWNER]: You don't have permissions for this")
-    end
+    -- else
+    --     print("[PS-OBJECTSPAWNER]: You don't have permissions for this")
+    -- end
 end)
 
 local function CreateDataObject(mode, coords, type, options, objectname)
@@ -64,3 +64,20 @@ local function CreateDataObject(mode, coords, type, options, objectname)
 end
 
 exports("CreateDataObject", CreateDataObject)
+
+-- TODO: Rework this to use ox_inventory
+RegisterNetEvent("ps-objectspawner:server:OpenStash", function(data)
+    local src = source
+    local objectData = data
+    local objectId = objectData.id
+    --local objectName = objectData.name
+    --local objectType = objectData.type
+    local stashName = "container_"..objectId
+
+    --if objectId and objectName and objectType then
+    if objectId then
+        exports['qb-inventory']:OpenInventory(src, "container_"..objectData.id, {maxweight = 1000000, slots = 10})
+    else
+        print("[PS-OBJECTSPAWNER]: Invalid object data")
+    end
+end)

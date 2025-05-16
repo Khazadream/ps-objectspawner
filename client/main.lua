@@ -181,12 +181,22 @@ local function RayCastGamePlayCamera(distance)
 	return b, c, e
 end
 
-local function PlaceSpawnedObject(heading)
+local function PlaceSpawnedObject(heading, export, metadata)
     local ObjectType = 'prop' --will be replaced with inputted prop type later, which will determine options/events
     local Options = { SpawnRange = tonumber(CurrentSpawnRange) }
+
+    if export then
+        Options = { SpawnRange = tonumber(CurrentSpawnRange), metadata = metadata}
+        TriggerServerEvent('ka-placeableitems:server:removePlaceItem', metadata)
+    end
+
     if ObjectParams[CurrentObjectType] ~= nil then
         Options = { event = ObjectParams[CurrentObjectType].event, icon = ObjectParams[CurrentObjectType].icon, label = ObjectParams[CurrentObjectType].label, SpawnRange = ObjectParams[CurrentObjectType].SpawnRange} --will be replaced with config of options later
+        if export then
+            Options = { event = ObjectParams[CurrentObjectType].event, icon = ObjectParams[CurrentObjectType].icon, label = ObjectParams[CurrentObjectType].label, SpawnRange = ObjectParams[CurrentObjectType].SpawnRange, metadata = metadata} --will be replaced with config of options later
+        end
     end
+    
     local finalCoords = vector4(CurrentCoords.x, CurrentCoords.y, CurrentCoords.z, heading)
     TriggerServerEvent("ps-objectspawner:server:CreateNewObject", CurrentModel, finalCoords, CurrentObjectType, Options, CurrentObjectName)
     DeleteObject(CurrentObject)
@@ -199,7 +209,11 @@ local function PlaceSpawnedObject(heading)
     CurrentModel = nil
 end
 
-local function CreateSpawnedObject(data)
+local function CreateSpawnedObject(data, export, metadata)
+    if export then
+        PlacingObject = true
+    end
+    
     if data.object == nil then return print("Invalid Object") end
     local object = data.object
     CurrentObjectType = data.type
@@ -245,7 +259,7 @@ local function CreateSpawnedObject(data)
 
             SetEntityHeading(CurrentObject, heading)
             if IsControlJustPressed(0, 38) then
-                PlaceSpawnedObject(heading)
+                PlaceSpawnedObject(heading, export, metadata)
             end
             
             Wait(1)
@@ -282,7 +296,7 @@ CreateThread(function()
 				local object = CreateObject(v["model"], objectCoords["x"], objectCoords["y"], objectCoords["z"], false, false, false)
                 SetEntityHeading(object, objectCoords["w"])
                 SetEntityAlpha(object, 0)
-                PlaceObjectOnGroundProperly(object)
+                --PlaceObjectOnGroundProperly(object)
                 FreezeEntityPosition(object, true)
 				v["IsRendered"] = true
                 v["object"] = object
@@ -310,6 +324,22 @@ CreateThread(function()
                         distance = ObjectParams[data.SpawnRange]
                     })
                 end
+                -- Target added by Khaza to be able to remove any object placed by the object spawner
+                exports['qb-target']:AddTargetEntity(object, {
+                    --debugPoly=true,
+                    options = {
+                        {
+                            name = v["name"],
+                            event = "ps-objectspawner:client:removeObject", 
+                            icon = "fas fa-trash",
+                            label = "Remove Object",
+                            propName = v["model"],
+                            options = v["options"],
+                            id = v.id
+                        },
+                    },
+                    distance = ObjectParams[data.SpawnRange]
+                })
 			end
 			
 			if dist >= data["SpawnRange"] and v["IsRendered"] then
@@ -355,7 +385,7 @@ RegisterNUICallback('delete', function(data, cb)
 end)
 
 RegisterNetEvent('ps-objectspawner:client:receiveObjectDelete', function(id)
-    if permission == 'god' then
+    --if permission == 'god' then
         if ObjectList[id]["IsRendered"] then
             if DoesEntityExist(ObjectList[id]["object"]) then 
                 for i = 255, 0, -51 do
@@ -372,5 +402,5 @@ RegisterNetEvent('ps-objectspawner:client:receiveObjectDelete', function(id)
             action = "delete",
             id = id,
         })
-    end
+    --end
 end)
