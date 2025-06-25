@@ -54,7 +54,6 @@ RegisterNetEvent('ps-objectspawner:client:mooveObject', function(data)
 
     -- Place same object to new position
     local result = exports.object_gizmo:useGizmo(data.handle)
-    print(json.encode(result))
     local CurrentModel = model
     local finalCoords = result.position
     local CurrentObjectType = objectData.type
