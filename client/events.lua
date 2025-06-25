@@ -35,3 +35,34 @@ RegisterNetEvent('ps-objectspawner:client:removeObject', function(data)
     TriggerServerEvent("ps-objectspawner:server:DeleteObject", objectData.id)
 
 end)
+
+-- Event to move an object with a target interaction
+RegisterNetEvent('ps-objectspawner:client:mooveObject', function(data)
+    local src = source
+    local objectData = data
+    local model = objectData.propName
+
+    -- Check if the player is a police officer and if the object is owned by the player
+    local Player = QBCore.Functions.GetPlayerData()
+    local PlayerName = Player.charinfo.firstname .. ' ' .. Player.charinfo.lastname
+    if Player.job.name ~= "police" then
+        if objectData.name ~= PlayerName then
+            QBCore.Functions.Notify("Vous n'êtes pas autorisé à retirer cet objet", "error")
+            return
+        end
+    end
+
+    -- Place same object to new position
+    local result = exports.object_gizmo:useGizmo(data.handle)
+    print(json.encode(result))
+    local CurrentModel = model
+    local finalCoords = result.position
+    local CurrentObjectType = objectData.type
+    local Options = objectData.options
+    Options.rotation = result.rotation
+    local CurrentObjectName = objectData.name
+    TriggerServerEvent("ps-objectspawner:server:CreateNewObject", CurrentModel, finalCoords, CurrentObjectType, Options, CurrentObjectName)
+
+    -- Delete the object from the database
+    TriggerServerEvent("ps-objectspawner:server:DeleteObject", objectData.id)
+end)

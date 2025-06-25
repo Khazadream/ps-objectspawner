@@ -289,6 +289,7 @@ CreateThread(function()
 		for k, v in pairs(ObjectList) do
             local data = v["options"]
             local objectCoords = v["coords"]
+            local objectRotation = v["options"].rotation or vector3(0.0, 0.0, 0.0)
 			local playerCoords = GetEntityCoords(PlayerPedId())
 			local dist = #(playerCoords - vector3(objectCoords["x"], objectCoords["y"], objectCoords["z"]))
 			if dist < data["SpawnRange"] and v["IsRendered"] == nil then
@@ -297,6 +298,7 @@ CreateThread(function()
                 SetEntityHeading(object, objectCoords["w"])
                 SetEntityAlpha(object, 0)
                 --PlaceObjectOnGroundProperly(object)
+                SetEntityRotation(object, objectRotation["x"] or 0.0, objectRotation["y"] or 0.0, objectRotation["z"] or 0.0)
                 FreezeEntityPosition(object, true)
 				v["IsRendered"] = true
                 v["object"] = object
@@ -329,12 +331,24 @@ CreateThread(function()
                     --debugPoly=true,
                     options = {
                         {
+                            num = 1,
                             name = v["name"],
                             event = "ps-objectspawner:client:removeObject", 
                             icon = "fas fa-trash",
                             label = "Remove Object",
                             propName = v["model"],
                             options = v["options"],
+                            id = v.id
+                        },
+                        {
+                            num = 2,
+                            name = v["name"],
+                            event = "ps-objectspawner:client:mooveObject", 
+                            icon = "fas fa-trash",
+                            label = "Moove Object",
+                            propName = v["model"],
+                            options = v["options"],
+                            handle = object,
                             id = v.id
                         },
                     },
