@@ -298,7 +298,9 @@ CreateThread(function()
                 SetEntityHeading(object, objectCoords["w"])
                 SetEntityAlpha(object, 0)
                 --PlaceObjectOnGroundProperly(object)
-                SetEntityRotation(object, objectRotation["x"] or 0.0, objectRotation["y"] or 0.0, objectRotation["z"] or 0.0)
+                if v["options"].rotation then
+                    SetEntityRotation(object, objectRotation["x"] or 0.0, objectRotation["y"] or 0.0, objectRotation["z"] or 0.0)
+                end
                 FreezeEntityPosition(object, true)
 				v["IsRendered"] = true
                 v["object"] = object
