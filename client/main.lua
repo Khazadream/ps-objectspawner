@@ -247,8 +247,18 @@ local function CreateSpawnedObject(data, export, metadata)
                 heading = heading + 5
                 if heading > 360 then heading = 0.0 end
             end
+
+            if IsControlJustPressed(0, 14) then
+                heading = heading + 5
+                if heading > 360 then heading = 0.0 end
+            end
     
             if IsControlJustPressed(0, 175) then
+                heading = heading - 5
+                if heading < 0 then heading = 360.0 end
+            end
+
+            if IsControlJustPressed(0, 15) then
                 heading = heading - 5
                 if heading < 0 then heading = 360.0 end
             end
