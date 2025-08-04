@@ -130,6 +130,13 @@ local function setupScaleform(scaleform)
     ButtonMessage("Rotate object")
     PopScaleformMovieFunctionVoid()
 
+    PushScaleformMovieFunction(scaleform, "SET_DATA_SLOT")
+    PushScaleformMovieFunctionParameterInt(3)
+    Button(GetControlInstructionalButton(2, 14, true))
+    Button(GetControlInstructionalButton(2, 15, true))
+    ButtonMessage("Rotate object")
+    PopScaleformMovieFunctionVoid()
+
     PushScaleformMovieFunction(scaleform, "DRAW_INSTRUCTIONAL_BUTTONS")
     PopScaleformMovieFunctionVoid()
 
